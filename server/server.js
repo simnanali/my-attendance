@@ -10,7 +10,7 @@ const attendanceRulesRouter = require('./routes/attendance-rules.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const ALLOWED_ORIGIN = 'http://localhost:4200';
+const ALLOWED_ORIGIN = 'http://localhost:4200' || 'https://my-attendance-u7hz.onrender.com';
 
 app.use(express.json());
 
