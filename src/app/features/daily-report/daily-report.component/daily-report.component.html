@@ -1,0 +1,77 @@
+<div class="daily-report-page">
+    <header class="daily-report-header">
+        <h1>Daily Report</h1>
+
+        <div class="date-nav">
+            <button type="button" class="btn-nav" (click)="onPreviousDay()" aria-label="Previous day">
+                &larr; Prev
+            </button>
+
+            <input type="date" class="date-picker" [value]="selectedDate()" [max]="todayDate"
+                (change)="onDateChange($any($event.target).value)" aria-label="Select date to view" />
+
+            <button type="button" class="btn-nav" (click)="onNextDay()" [disabled]="isNextDisabled()"
+                aria-label="Next day">
+                Next &rarr;
+            </button>
+        </div>
+    </header>
+
+    <p class="loading-state" *ngIf="isLoading()">Loading attendance...</p>
+
+    <ng-container *ngIf="!isLoading()">
+        <p class="error-state" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+
+        <ng-container *ngIf="!errorMessage()">
+            <p class="selected-date">{{ viewModel().dateDisplay }}</p>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <span class="summary-card__label">First Check-In</span>
+                    <span class="summary-card__value">{{ viewModel().firstCheckInDisplay ?? '—' }}</span>
+                </div>
+                <div class="summary-card">
+                    <span class="summary-card__label">Last Check-Out</span>
+                    <span class="summary-card__value">{{ viewModel().lastCheckOutDisplay ?? '—' }}</span>
+                </div>
+                <div class="summary-card">
+                    <span class="summary-card__label">Total Sessions</span>
+                    <span class="summary-card__value">{{ viewModel().totalSessions }}</span>
+                </div>
+                <div class="summary-card">
+                    <span class="summary-card__label">Total Working Hours</span>
+                    <span class="summary-card__value">{{ viewModel().totalWorkingHoursDisplay }}</span>
+                </div>
+            </div>
+
+            <section class="sessions-section">
+                <h2>Sessions</h2>
+
+                <p class="empty-state" *ngIf="viewModel().isEmpty">
+                    No attendance recorded for this day.
+                </p>
+
+                <div class="sessions-table" *ngIf="!viewModel().isEmpty">
+                    <div class="sessions-table__header">
+                        <span>Session</span>
+                        <span>Check-In</span>
+                        <span>Check-Out</span>
+                        <span>Duration</span>
+                        <span>Status</span>
+                    </div>
+                    <div class="sessions-table__row" *ngFor="let session of viewModel().sessions">
+                        <span data-label="Session">Session {{ session.sessionNumber }}</span>
+                        <span data-label="Check-In">{{ session.checkInDisplay }}</span>
+                        <span data-label="Check-Out">{{ session.checkOutDisplay ?? '—' }}</span>
+                        <span data-label="Duration">{{ session.durationDisplay }}</span>
+                        <span data-label="Status" class="status-badge"
+                            [class.status-badge--completed]="session.status === 'Completed'"
+                            [class.status-badge--inprogress]="session.status === 'In Progress'">
+                            {{ session.status }}
+                        </span>
+                    </div>
+                </div>
+            </section>
+        </ng-container>
+    </ng-container>
+</div>

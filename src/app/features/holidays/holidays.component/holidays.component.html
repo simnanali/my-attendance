@@ -1,0 +1,135 @@
+<div class="holidays-page">
+    <header class="holidays-header">
+        <div>
+            <h1>Holiday Management</h1>
+            <p class="holidays-header__subtitle">Manage company and public holidays</p>
+        </div>
+        <button type="button" class="btn-primary" (click)="onAddClick()" *ngIf="!isFormOpen()">
+            + Add Holiday
+        </button>
+    </header>
+
+    <section class="holiday-form" *ngIf="isFormOpen()">
+        <h2>{{ editingHoliday() ? 'Edit Holiday' : 'Add Holiday' }}</h2>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmitForm()" novalidate>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="holiday-date">Date</label>
+                    <input id="holiday-date" type="date" formControlName="date"
+                        [attr.aria-invalid]="dateControl?.invalid && dateControl?.touched ? true : null"
+                        aria-describedby="holiday-date-error" />
+                    <p class="form-error" id="holiday-date-error" *ngIf="dateControl?.invalid && dateControl?.touched">
+                        Date is required.
+                    </p>
+                </div>
+
+                <div class="form-field">
+                    <label for="holiday-day">Day</label>
+                    <input id="holiday-day" type="text" [value]="derivedDayDisplay()" disabled readonly />
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label for="holiday-name">Holiday Name</label>
+                <input id="holiday-name" type="text" formControlName="name"
+                    [attr.aria-invalid]="nameControl?.invalid && nameControl?.touched ? true : null"
+                    aria-describedby="holiday-name-error" />
+                <p class="form-error" id="holiday-name-error" *ngIf="nameControl?.invalid && nameControl?.touched">
+                    Holiday name is required.
+                </p>
+            </div>
+
+            <div class="form-field">
+                <label for="holiday-type">Holiday Type</label>
+                <select id="holiday-type" formControlName="type">
+                    <option *ngFor="let type of holidayTypes" [value]="type">{{ type }}</option>
+                </select>
+            </div>
+
+            <p class="form-error form-error--server" *ngIf="formError()" role="alert">
+                {{ formError() }}
+            </p>
+
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" (click)="onCancelForm()">Cancel</button>
+                <button type="submit" class="btn-primary" [disabled]="isSaving()">
+                    {{ isSaving() ? 'Saving...' : 'Save Holiday' }}
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <section class="holiday-filters" *ngIf="!isFormOpen()">
+        <div class="filter-field">
+            <label for="year-filter">Year</label>
+            <select id="year-filter" [value]="selectedYear()" (change)="onYearChange(+$any($event.target).value)">
+                <option *ngFor="let year of yearOptions" [value]="year">{{ year }}</option>
+            </select>
+        </div>
+
+        <div class="filter-field">
+            <label for="type-filter">Type</label>
+            <select id="type-filter" [value]="selectedType()" (change)="onTypeChange($any($event.target).value)">
+                <option value="All">All</option>
+                <option *ngFor="let type of holidayTypes" [value]="type">{{ type }}</option>
+            </select>
+        </div>
+
+        <div class="filter-field filter-field--search">
+            <label for="search-filter">Search</label>
+            <input id="search-filter" type="text" placeholder="Search holiday name" [value]="searchTerm()"
+                (input)="onSearchChange($any($event.target).value)" />
+        </div>
+    </section>
+
+    <p class="loading-state" role="status" aria-live="polite" *ngIf="isLoading()">
+        Loading holidays...
+    </p>
+
+    <ng-container *ngIf="!isLoading() && !isFormOpen()">
+        <p class="error-state" role="alert" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+
+        <ng-container *ngIf="!errorMessage()">
+            <p class="empty-state" *ngIf="filteredHolidays().length === 0">
+                No holidays configured for this year.
+            </p>
+
+            <div class="holidays-table" *ngIf="filteredHolidays().length > 0">
+                <div class="holidays-table__header">
+                    <span>Date</span>
+                    <span>Day</span>
+                    <span>Holiday Name</span>
+                    <span>Type</span>
+                    <span>Actions</span>
+                </div>
+
+                <div class="holidays-table__row" *ngFor="let holiday of filteredHolidays()">
+                    <ng-container *ngIf="deletingId() !== holiday.id">
+                        <span data-label="Date">{{ formatDate(holiday.date) }}</span>
+                        <span data-label="Day">{{ holiday.day }}</span>
+                        <span data-label="Holiday Name">{{ holiday.name }}</span>
+                        <span data-label="Type">{{ holiday.type }}</span>
+                        <span data-label="Actions" class="holidays-table__actions">
+                            <button type="button" class="btn-link" (click)="onEditClick(holiday)">Edit</button>
+                            <button type="button" class="btn-link btn-link--danger" (click)="onDeleteClick(holiday.id)">
+                                Delete
+                            </button>
+                        </span>
+                    </ng-container>
+
+                    <div class="holidays-table__confirm" *ngIf="deletingId() === holiday.id">
+                        <span>Delete "{{ holiday.name }}"?</span>
+                        <span class="holidays-table__confirm-actions">
+                            <button type="button" class="btn-link btn-link--danger"
+                                (click)="onConfirmDelete(holiday.id)">
+                                Confirm
+                            </button>
+                            <button type="button" class="btn-link" (click)="onCancelDelete()">Cancel</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </ng-container>
+</div>

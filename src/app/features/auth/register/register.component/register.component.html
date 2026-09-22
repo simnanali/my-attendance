@@ -1,0 +1,74 @@
+<div class="auth-page">
+  <form class="auth-card" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <h1 class="auth-card__title">Create Account</h1>
+
+    <div class="form-field">
+      <label for="fullName">Full Name</label>
+      <input id="fullName" type="text" formControlName="fullName" autocomplete="name"
+        [attr.aria-invalid]="fullName?.invalid && fullName?.touched ? true : null" aria-describedby="fullName-error" />
+      <p class="form-error" id="fullName-error" *ngIf="fullName?.invalid && fullName?.touched">
+        Full name is required.
+      </p>
+    </div>
+
+    <div class="form-field">
+      <label for="email">Email</label>
+      <input id="email" type="email" formControlName="email" autocomplete="email"
+        [attr.aria-invalid]="email?.invalid && email?.touched ? true : null" aria-describedby="email-error" />
+      <p class="form-error" id="email-error" *ngIf="email?.errors?.['required'] && email?.touched">
+        Email is required.
+      </p>
+      <p class="form-error" id="email-error" *ngIf="email?.errors?.['email'] && email?.touched">
+        Enter a valid email address.
+      </p>
+    </div>
+
+    <div class="form-field">
+      <label for="username">Username</label>
+      <input id="username" type="text" formControlName="username" autocomplete="username"
+        [attr.aria-invalid]="username?.invalid && username?.touched ? true : null" aria-describedby="username-error" />
+      <p class="form-error" id="username-error" *ngIf="username?.invalid && username?.touched">
+        Username is required.
+      </p>
+    </div>
+
+    <div class="form-field">
+      <label for="password">Password</label>
+      <input id="password" type="password" formControlName="password" autocomplete="new-password"
+        [attr.aria-invalid]="password?.invalid && password?.touched ? true : null" aria-describedby="password-error" />
+      <p class="form-error" id="password-error" *ngIf="password?.errors?.['required'] && password?.touched">
+        Password is required.
+      </p>
+      <p class="form-error" id="password-error" *ngIf="password?.errors?.['minlength'] && password?.touched">
+        Password must be at least 6 characters.
+      </p>
+    </div>
+
+    <div class="form-field">
+      <label for="confirmPassword">Confirm Password</label>
+      <input id="confirmPassword" type="password" formControlName="confirmPassword" autocomplete="new-password"
+        [attr.aria-invalid]="(confirmPassword?.invalid || form.errors?.['passwordsMismatch']) && confirmPassword?.touched ? true : null"
+        aria-describedby="confirmPassword-error" />
+      <p class="form-error" id="confirmPassword-error"
+        *ngIf="confirmPassword?.errors?.['required'] && confirmPassword?.touched">
+        Please confirm your password.
+      </p>
+      <p class="form-error" id="confirmPassword-error"
+        *ngIf="form.errors?.['passwordsMismatch'] && confirmPassword?.touched">
+        Passwords do not match.
+      </p>
+    </div>
+
+    <p class="form-error form-error--server" *ngIf="errorMessage()" role="alert">
+      {{ errorMessage() }}
+    </p>
+
+    <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
+      {{ isSubmitting() ? 'Creating account...' : 'Register' }}
+    </button>
+
+    <p class="auth-card__footer">
+      Already have an account? <a routerLink="/login">Log in</a>
+    </p>
+  </form>
+</div>

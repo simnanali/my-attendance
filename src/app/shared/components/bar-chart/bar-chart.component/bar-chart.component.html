@@ -1,0 +1,18 @@
+<div class="bar-chart" *ngIf="labels.length > 0">
+    <svg class="bar-chart__svg" [attr.viewBox]="'0 0 ' + chartWidth + ' ' + totalHeight" preserveAspectRatio="none"
+        role="img" [attr.aria-label]="'Bar chart with ' + labels.length + ' data points'">
+        <line x1="0" [attr.y1]="chartHeight" [attr.x2]="chartWidth" [attr.y2]="chartHeight"
+            class="bar-chart__baseline" />
+
+        <ng-container *ngFor="let value of values; let i = index">
+            <rect [attr.x]="barX(i)" [attr.y]="barY(value)" [attr.width]="barWidth" [attr.height]="barHeight(value)"
+                class="bar-chart__bar" rx="3">
+                <title>{{ labels[i] }}: {{ formattedValue(value) }}</title>
+            </rect>
+
+            <text [attr.x]="labelX(i)" [attr.y]="chartHeight + 18" class="bar-chart__label" text-anchor="middle">
+                {{ labels[i] }}
+            </text>
+        </ng-container>
+    </svg>
+</div>

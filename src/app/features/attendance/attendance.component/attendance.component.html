@@ -1,0 +1,55 @@
+<div class="attendance-page">
+    <ng-container *ngIf="!isLoading(); else loadingState">
+        <ng-container *ngIf="viewModel$ | async as vm">
+            <header class="attendance-header">
+                <p class="attendance-header__date">{{ vm.currentDateDisplay }}</p>
+                <p class="attendance-header__time">{{ vm.currentTimeDisplay }}</p>
+            </header>
+
+            <div class="attendance-action">
+                <button type="button" class="btn-action" [class.btn-action--checkin]="!vm.hasOpenSession"
+                    [class.btn-action--checkout]="vm.hasOpenSession" [disabled]="isProcessing()"
+                    (click)="vm.hasOpenSession ? onCheckOut() : onCheckIn()">
+                    {{ isProcessing() ? 'Please wait...' : (vm.hasOpenSession ? 'CHECK OUT' : 'CHECK IN') }}
+                </button>
+            </div>
+
+            <div class="attendance-summary">
+                <div class="summary-card">
+                    <span class="summary-card__label">Total Sessions</span>
+                    <span class="summary-card__value">{{ vm.totalSessions }}</span>
+                </div>
+                <div class="summary-card">
+                    <span class="summary-card__label">Total Working Hours</span>
+                    <span class="summary-card__value">{{ vm.totalWorkingMinutesDisplay }}</span>
+                </div>
+            </div>
+
+            <section class="attendance-timeline">
+                <h2>Today's Sessions</h2>
+
+                <p class="empty-state" *ngIf="vm.sessions.length === 0">
+                    No attendance recorded for today yet.
+                </p>
+
+                <ul class="timeline-list" *ngIf="vm.sessions.length > 0">
+                    <li class="timeline-item" *ngFor="let session of vm.sessions">
+                        <div class="timeline-item__times">
+                            <span>{{ session.checkInDisplay }}</span>
+                            <span>&rarr;</span>
+                            <span *ngIf="!session.isOpen">{{ session.checkOutDisplay }}</span>
+                            <span class="timeline-item__inprogress" *ngIf="session.isOpen">In Progress</span>
+                        </div>
+                        <div class="timeline-item__duration">
+                            {{ session.durationDisplay }}<span *ngIf="session.isOpen"> (so far)</span>
+                        </div>
+                    </li>
+                </ul>
+            </section>
+        </ng-container>
+    </ng-container>
+
+    <ng-template #loadingState>
+        <p class="loading-state">Loading attendance...</p>
+    </ng-template>
+</div>

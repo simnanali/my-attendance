@@ -1,0 +1,39 @@
+{
+  "holidays": [
+    {
+      "id": "HOL-000001",
+      "date": "2026-10-02",
+      "day": "Friday",
+      "name": "Gandhi Jayanthi",
+      "type": "National"
+    },
+    {
+      "id": "HOL-000002",
+      "date": "2026-10-20",
+      "day": "Tuesday",
+      "name": "Dussera",
+      "type": "Festival"
+    },
+    {
+      "id": "HOL-000003",
+      "date": "2026-11-08",
+      "day": "Sunday",
+      "name": "Diwali (Laxmi Pujan)",
+      "type": "Festival"
+    },
+    {
+      "id": "HOL-000004",
+      "date": "2026-11-10",
+      "day": "Tuesday",
+      "name": "Diwali (Balipratipada)",
+      "type": "Festival"
+    },
+    {
+      "id": "HOL-000005",
+      "date": "2026-12-25",
+      "day": "Friday",
+      "name": "Christmas",
+      "type": "Festival"
+    }
+  ]
+}

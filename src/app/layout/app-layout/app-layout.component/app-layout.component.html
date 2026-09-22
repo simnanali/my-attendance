@@ -1,0 +1,13 @@
+<div class="app-shell">
+    <app-header [sidebarOpenInput]="isSidebarOpen()" (menuToggle)="toggleSidebar()"></app-header>
+
+    <div class="app-body">
+        <app-sidebar [isOpen]="isSidebarOpen()" (closeSidebar)="closeSidebar()"></app-sidebar>
+
+        <main class="app-main" id="main-content">
+            <router-outlet></router-outlet>
+        </main>
+    </div>
+
+    <app-footer></app-footer>
+</div>

@@ -1,0 +1,35 @@
+<div class="weekoff-page">
+    <header class="weekoff-header">
+        <h1>Weekoff Configuration</h1>
+        <p class="weekoff-header__subtitle">
+            Set which days of the week are working days or weekoffs for everyone.
+        </p>
+    </header>
+
+    <p class="loading-state" role="status" aria-live="polite" *ngIf="isLoading()">
+        Loading weekoff configuration...
+    </p>
+
+    <p class="error-state" role="alert" *ngIf="!isLoading() && errorMessage()">
+        {{ errorMessage() }}
+    </p>
+
+    <ng-container *ngIf="!isLoading() && !errorMessage()">
+        <div class="weekoff-list">
+            <div class="weekoff-row" *ngFor="let day of weekoffs()">
+                <span class="weekoff-row__name">{{ day.dayName }}</span>
+
+                <button type="button" class="weekoff-toggle" [class.weekoff-toggle--weekoff]="day.isWeekoff"
+                    (click)="toggleDay(day.dayOfWeek)" [attr.aria-pressed]="day.isWeekoff">
+                    {{ day.isWeekoff ? 'Weekoff' : 'Working Day' }}
+                </button>
+            </div>
+        </div>
+
+        <div class="weekoff-actions">
+            <button type="button" class="btn-primary" [disabled]="isSaving()" (click)="onSave()">
+                {{ isSaving() ? 'Saving...' : 'Save Configuration' }}
+            </button>
+        </div>
+    </ng-container>
+</div>

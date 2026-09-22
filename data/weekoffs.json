@@ -1,0 +1,39 @@
+{
+  "weekoffs": [
+    {
+      "dayOfWeek": 0,
+      "dayName": "Sunday",
+      "isWeekoff": true
+    },
+    {
+      "dayOfWeek": 1,
+      "dayName": "Monday",
+      "isWeekoff": false
+    },
+    {
+      "dayOfWeek": 2,
+      "dayName": "Tuesday",
+      "isWeekoff": false
+    },
+    {
+      "dayOfWeek": 3,
+      "dayName": "Wednesday",
+      "isWeekoff": false
+    },
+    {
+      "dayOfWeek": 4,
+      "dayName": "Thursday",
+      "isWeekoff": false
+    },
+    {
+      "dayOfWeek": 5,
+      "dayName": "Friday",
+      "isWeekoff": false
+    },
+    {
+      "dayOfWeek": 6,
+      "dayName": "Saturday",
+      "isWeekoff": true
+    }
+  ]
+}

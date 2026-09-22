@@ -1,0 +1,20 @@
+<div class="sidebar-backdrop" *ngIf="isOpen" (click)="onBackdropClick()"></div>
+
+<nav id="app-sidebar-nav" class="app-sidebar" [class.app-sidebar--open]="isOpen" aria-label="Main navigation">
+    <ul class="nav-list">
+        <li *ngFor="let item of navItems">
+            <a [routerLink]="item.route" routerLinkActive="nav-link--active"
+                [attr.aria-current]="isRouteActive(item.route) ? 'page' : null" class="nav-link" (click)="onNavClick()">
+                <span class="nav-link__icon" aria-hidden="true">{{ item.icon }}</span>
+                <span class="nav-link__label">{{ item.label }}</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="nav-divider"></div>
+
+    <button type="button" class="nav-link nav-link--logout" (click)="onLogout()">
+        <span class="nav-link__icon" aria-hidden="true">🚪</span>
+        <span class="nav-link__label">Logout</span>
+    </button>
+</nav>

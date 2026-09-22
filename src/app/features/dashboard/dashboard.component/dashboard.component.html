@@ -1,0 +1,90 @@
+<div class="dashboard-page">
+    <p class="loading-state" *ngIf="isLoading()">Loading dashboard...</p>
+
+    <ng-container *ngIf="!isLoading()">
+        <ng-container *ngIf="viewModel() as vm">
+            <!-- Hero: date/time + check-in/out action -->
+            <section class="hero-card">
+                <div class="hero-card__datetime">
+                    <p class="hero-card__date">{{ vm.currentDateDisplay }}</p>
+                    <p class="hero-card__time">{{ vm.currentTimeDisplay }}</p>
+                </div>
+
+                <button type="button" class="btn-action" [class.btn-action--checkin]="!vm.hasOpenSession"
+                    [class.btn-action--checkout]="vm.hasOpenSession" [disabled]="isProcessing()"
+                    (click)="vm.hasOpenSession ? onCheckOut() : onCheckIn()">
+                    {{ isProcessing() ? 'Please wait...' : (vm.hasOpenSession ? 'CHECK OUT' : 'CHECK IN') }}
+                </button>
+            </section>
+
+            <!-- Today's KPI cards -->
+            <section class="kpi-grid">
+                <div class="kpi-card">
+                    <span class="kpi-card__label">Today's Working Hours</span>
+                    <span class="kpi-card__value">{{ vm.todayWorkingHoursDisplay }}</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-card__label">Today's Sessions</span>
+                    <span class="kpi-card__value">{{ vm.todaySessions }}</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-card__label">First Check-In</span>
+                    <span class="kpi-card__value">{{ vm.firstCheckInDisplay }}</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-card__label">Current Status</span>
+                    <span class="kpi-card__value"
+                        [class.kpi-card__value--active]="vm.currentStatusDisplay === 'Checked In'">
+                        {{ vm.currentStatusDisplay }}
+                    </span>
+                </div>
+            </section>
+
+            <div class="dashboard-columns">
+                <!-- Today's timeline -->
+                <section class="panel">
+                    <h2>Today's Timeline</h2>
+
+                    <p class="empty-state" *ngIf="vm.isTodayEmpty">No attendance recorded for today yet.</p>
+
+                    <ol class="timeline" *ngIf="!vm.isTodayEmpty">
+                        <li class="timeline__item" *ngFor="let event of vm.timeline">
+                            <span class="timeline__time">{{ event.timeDisplay }}</span>
+                            <span class="timeline__dot" [class.timeline__dot--checkin]="event.label === 'Check In'"
+                                [class.timeline__dot--checkout]="event.label === 'Check Out'"
+                                [class.timeline__dot--inprogress]="event.label === 'In Progress'"></span>
+                            <span class="timeline__label">{{ event.label }}</span>
+                        </li>
+                    </ol>
+                </section>
+
+                <!-- Monthly summary -->
+                <section class="panel">
+                    <h2>This Month</h2>
+
+                    <div class="monthly-grid">
+                        <div class="monthly-card">
+                            <span class="monthly-card__label">Working Days</span>
+                            <span class="monthly-card__value">{{ vm.monthlyWorkingDays }}</span>
+                        </div>
+                        <div class="monthly-card">
+                            <span class="monthly-card__label">Total Hours</span>
+                            <span class="monthly-card__value">{{ vm.monthlyTotalHoursDisplay }}</span>
+                        </div>
+                        <div class="monthly-card">
+                            <span class="monthly-card__label">Average / Day</span>
+                            <span class="monthly-card__value">{{ vm.monthlyAverageHoursDisplay }}</span>
+                        </div>
+                    </div>
+
+                    <p class="empty-state" *ngIf="!vm.hasMonthlyData">
+                        No attendance records found for this month.
+                    </p>
+
+                    <app-bar-chart *ngIf="vm.hasMonthlyData" [labels]="vm.chartLabels" [values]="vm.chartValues"
+                        valueSuffix="h"></app-bar-chart>
+                </section>
+            </div>
+        </ng-container>
+    </ng-container>
+</div>

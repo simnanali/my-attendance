@@ -1,0 +1,28 @@
+{
+  "users": [
+    {
+      "id": "USR-000001",
+      "fullName": "Test User",
+      "email": "t@example.com",
+      "username": "test",
+      "passwordHash": "x",
+      "createdAt": "2026-09-16T00:00:00+05:30"
+    },
+    {
+      "id": "USR-000005",
+      "fullName": "Naeem Ansari",
+      "email": "a.alnaeem@gmail.com",
+      "username": "a.naeem",
+      "passwordHash": "$2a$10$oO1JVWcSyzHK3VZnJtY0veU/bMxX78CDnLgV5xeG7c/DBHBg4BqIm",
+      "createdAt": "2026-09-17T16:31:39+05:30"
+    },
+    {
+      "id": "USR-000006",
+      "fullName": "test user 01",
+      "email": "test@naeem.com",
+      "username": "test1",
+      "passwordHash": "$2a$10$uZPTh8z87/8.bDuup5AwMOW7t/ZCZPOOlRmRU5ytGFPRoxOhFdE2K",
+      "createdAt": "2026-09-18T11:03:30+05:30"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+<div class="monthly-report-page">
+    <header class="monthly-report-header">
+        <h1>Monthly Report</h1>
+
+        <div class="month-nav">
+            <button type="button" class="btn-nav" (click)="onPreviousMonth()" aria-label="Previous month">
+                &larr; Prev
+            </button>
+
+            <select class="select-input" [value]="selectedMonth()" (change)="onMonthSelect(+$any($event.target).value)"
+                aria-label="Select month">
+                <option *ngFor="let option of monthOptions" [value]="option.value">
+                    {{ option.label }}
+                </option>
+            </select>
+
+            <select class="select-input" [value]="selectedYear()" (change)="onYearSelect(+$any($event.target).value)"
+                aria-label="Select year">
+                <option *ngFor="let option of yearOptions" [value]="option.value">
+                    {{ option.label }}
+                </option>
+            </select>
+
+            <button type="button" class="btn-nav" (click)="onNextMonth()" [disabled]="isNextDisabled()"
+                aria-label="Next month">
+                Next &rarr;
+            </button>
+        </div>
+    </header>
+
+    <p class="loading-state" *ngIf="isLoading()">Loading monthly report...</p>
+
+    <ng-container *ngIf="!isLoading()">
+        <p class="error-state" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+
+        <ng-container *ngIf="!errorMessage()">
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <span class="summary-card__label">Total Working Days</span>
+                    <span class="summary-card__value">{{ viewModel().totalWorkingDays }}</span>
+                </div>
+                <div class="summary-card">
+                    <span class="summary-card__label">Total Sessions</span>
+                    <span class="summary-card__value">{{ viewModel().totalSessions }}</span>
+                </div>
+                <div class="summary-card">
+                    <span class="summary-card__label">Total Working Hours</span>
+                    <span class="summary-card__value">{{ viewModel().totalWorkingHoursDisplay }}</span>
+                </div>
+                <div class="summary-card">
+                    <span class="summary-card__label">Average Working Hours / Day</span>
+                    <span class="summary-card__value">{{ viewModel().averageWorkingHoursPerDayDisplay }}</span>
+                </div>
+            </div>
+
+            <p class="empty-state" *ngIf="viewModel().isEmpty">
+                No attendance records found for this month.
+            </p>
+
+            <ng-container *ngIf="!viewModel().isEmpty">
+                <section class="chart-section">
+                    <h2>Working Hours by Day</h2>
+                    <app-bar-chart [labels]="viewModel().chartLabels" [values]="viewModel().chartValues"
+                        valueSuffix="h"></app-bar-chart>
+                </section>
+
+                <section class="rows-section">
+                    <h2>Daily Breakdown</h2>
+
+                    <div class="rows-table">
+                        <div class="rows-table__header">
+                            <span>Date</span>
+                            <span>First In</span>
+                            <span>Last Out</span>
+                            <span>Sessions</span>
+                            <span>Working Hours</span>
+                        </div>
+                        <div class="rows-table__row" *ngFor="let row of viewModel().rows">
+                            <span data-label="Date">{{ row.dateDisplay }}</span>
+                            <span data-label="First In">{{ row.firstInDisplay }}</span>
+                            <span data-label="Last Out">{{ row.lastOutDisplay }}</span>
+                            <span data-label="Sessions">{{ row.sessions }}</span>
+                            <span data-label="Working Hours">
+                                {{ row.workingHoursDisplay }}
+                                <span class="in-progress-tag" *ngIf="row.hasOpenSession">In Progress</span>
+                            </span>
+                        </div>
+                    </div>
+                </section>
+            </ng-container>
+        </ng-container>
+    </ng-container>
+</div>

@@ -1,0 +1,24 @@
+<header class="app-header">
+  <div class="app-header__left">
+    <button type="button" class="app-header__hamburger" (click)="onHamburgerClick()" aria-label="Toggle navigation menu"
+      aria-controls="app-sidebar-nav" [attr.aria-expanded]="sidebarOpen()">
+      ☰
+    </button>
+    <span class="app-header__logo" aria-hidden="true">🕒</span>
+    <span class="app-header__title">Sitara Attendance</span>
+  </div>
+
+  <div class="app-header__right" *ngIf="currentUser() as user">
+    <a routerLink="/profile" routerLinkActive="nav-link--active">
+      <span class="app-header__user" aria-hidden="true">👤</span>
+    </a>
+    <span class="app-header__username">{{ user.fullName }}</span>
+
+    <button type="button" class="app-header__icon-btn" (click)="onThemeToggle()"
+      [attr.aria-label]="theme() === 'light' ? 'Switch to dark mode' : 'Switch to light mode'">
+      {{ theme() === 'light' ? '🌙' : '☀️' }}
+    </button>
+
+    <!-- <button type="button" class="app-header__logout" (click)="onLogout()">Logout</button> -->
+  </div>
+</header>

@@ -1,0 +1,7 @@
+{
+  "attendanceRules": {
+    "standardWorkingMinutes": 480,
+    "fullDayThresholdMinutes": 360,
+    "halfDayThresholdMinutes": 240
+  }
+}
