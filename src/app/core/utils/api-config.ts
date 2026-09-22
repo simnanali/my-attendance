@@ -6,4 +6,8 @@
  * StorageService for why nothing else needs to know this URL exists.
  */
 
-export const API_BASE_URL = 'http://localhost:3000/api';
+//This is for dev
+//export const API_BASE_URL = 'http://localhost:3000/api';
+
+//This is for UAT
+export const API_BASE_URL = 'https://attendance-backend-meei.onrender.com';
