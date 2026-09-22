@@ -10,4 +10,4 @@
 //export const API_BASE_URL = 'http://localhost:3000/api';
 
 //This is for UAT
-export const API_BASE_URL = 'https://attendance-backend-meei.onrender.com';
+export const API_BASE_URL = 'https://attendance-backend-meei.onrender.com/api';
