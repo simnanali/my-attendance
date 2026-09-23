@@ -1,0 +1,81 @@
+<div class="rules-page">
+    <header class="rules-header">
+        <h1>Attendance Rules</h1>
+    </header>
+
+    <p class="loading-state" role="status" aria-live="polite" *ngIf="isLoading()">
+        Loading attendance rules...
+    </p>
+
+    <p class="error-state" role="alert" *ngIf="!isLoading() && errorMessage()">
+        {{ errorMessage() }}
+    </p>
+
+    <div class="rules-card" *ngIf="!isLoading() && !errorMessage()">
+        <div class="rule-field">
+            <label>Standard Working Hours</label>
+            <div class="time-input">
+                <input type="number" min="0" max="23" [value]="standardHours()"
+                    (input)="updateStandardHours($any($event.target).value)" aria-label="Standard working hours" />
+                <span>h</span>
+                <input type="number" min="0" max="59" [value]="standardMinutes()"
+                    (input)="updateStandardMinutes($any($event.target).value)" aria-label="Standard working minutes" />
+                <span>m</span>
+            </div>
+            <p class="rule-field__hint">Target: {{ standardDisplay() }} — used for progress, not status classification.
+            </p>
+        </div>
+
+        <div class="rule-field">
+            <label>Full Day Threshold</label>
+            <div class="time-input">
+                <input type="number" min="0" max="23" [value]="fullDayHours()"
+                    (input)="updateFullDayHours($any($event.target).value)" aria-label="Full day threshold hours" />
+                <span>h</span>
+                <input type="number" min="0" max="59" [value]="fullDayMinutes()"
+                    (input)="updateFullDayMinutes($any($event.target).value)" aria-label="Full day threshold minutes" />
+                <span>m</span>
+            </div>
+        </div>
+
+        <div class="rule-field">
+            <label>Half Day Threshold</label>
+            <div class="time-input">
+                <input type="number" min="0" max="23" [value]="halfDayHours()"
+                    (input)="updateHalfDayHours($any($event.target).value)" aria-label="Half day threshold hours" />
+                <span>h</span>
+                <input type="number" min="0" max="59" [value]="halfDayMinutes()"
+                    (input)="updateHalfDayMinutes($any($event.target).value)" aria-label="Half day threshold minutes" />
+                <span>m</span>
+            </div>
+        </div>
+
+        <div class="rules-divider"></div>
+
+        <div class="status-rules">
+            <h2>Status Rules</h2>
+            <p class="status-rules__hint">Updates live as you change the thresholds above.</p>
+
+            <div class="status-rule-row">
+                <span class="status-rule-row__condition">&ge; {{ fullDayDisplay() }}</span>
+                <span class="status-rule-row__label status-rule-row__label--full">Full Day</span>
+            </div>
+            <div class="status-rule-row">
+                <span class="status-rule-row__condition">&ge; {{ halfDayDisplay() }}</span>
+                <span class="status-rule-row__label status-rule-row__label--half">Half Day</span>
+            </div>
+            <div class="status-rule-row">
+                <span class="status-rule-row__condition">&lt; {{ halfDayDisplay() }}</span>
+                <span class="status-rule-row__label status-rule-row__label--absent">Absent</span>
+            </div>
+        </div>
+
+        <p class="form-error" role="alert" *ngIf="formError()">{{ formError() }}</p>
+
+        <div class="rules-actions">
+            <button type="button" class="btn-primary" [disabled]="isSaving()" (click)="onSave()">
+                {{ isSaving() ? 'Saving...' : 'Save Rules' }}
+            </button>
+        </div>
+    </div>
+</div>

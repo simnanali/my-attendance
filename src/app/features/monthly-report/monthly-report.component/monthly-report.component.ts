@@ -1,14 +1,21 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { interval } from 'rxjs';
+import { forkJoin, interval, of } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 import { AttendanceService } from '../../../core/services/attendance.service';
 import { AttendanceCalculationService } from '../../../core/services/attendance-calculation.service';
+import { AttendanceRuleService } from '../../../core/services/attendance-rule.service';
+import { HolidayService } from '../../../core/services/holiday.service';
+import { WeekoffService } from '../../../core/services/weekoff.service';
 import { DateTimeService } from '../../../core/services/date-time.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { BarChartComponent } from '../../../shared/components/bar-chart/bar-chart.component/bar-chart.component';
 import { AttendanceDay } from '../../../core/models/attendance.model';
+import { AttendanceRules } from '../../../core/models/attendance-rule.model';
+import { Holiday } from '../../../core/models/holiday.model';
+import { WeekoffDay } from '../../../core/models/weekoff.model';
 
 interface DailyRowViewModel {
   dateDisplay: string;
@@ -27,7 +34,14 @@ interface MonthlyReportViewModel {
   rows: DailyRowViewModel[];
   chartLabels: string[];
   chartValues: number[];
+  todayChartIndex: number | undefined;
   isEmpty: boolean;
+
+  fullDayCount: number;
+  halfDayCount: number;
+  absentCount: number;
+  holidayCount: number;
+  weekoffCount: number;
 }
 
 interface SelectOption {
@@ -44,16 +58,25 @@ interface SelectOption {
 export class MonthlyReportComponent implements OnInit {
   private readonly attendanceService = inject(AttendanceService);
   private readonly calculationService = inject(AttendanceCalculationService);
+  private readonly ruleService = inject(AttendanceRuleService);
+  private readonly holidayService = inject(HolidayService);
+  private readonly weekoffService = inject(WeekoffService);
   private readonly dateTimeService = inject(DateTimeService);
   private readonly notificationService = inject(NotificationService);
 
   private readonly currentYearMonth = this.dateTimeService.getCurrentYearMonth();
+  private readonly todayDateStr = this.dateTimeService.getCurrentDateString();
 
   readonly selectedYear = signal<number>(this.currentYearMonth.year);
   readonly selectedMonth = signal<number>(this.currentYearMonth.month);
   readonly isLoading = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
   readonly monthDays = signal<AttendanceDay[]>([]);
+  readonly attendanceRules = signal<AttendanceRules | null>(null);
+  readonly weekoffs = signal<WeekoffDay[]>([]);
+
+  /** Cached per year, since holidays are only re-fetched when the viewed year changes. */
+  private readonly holidaysCache = signal<{ year: number; holidays: Holiday[] } | null>(null);
 
   readonly monthOptions: SelectOption[] = Array.from({ length: 12 }, (_, i) => ({
     value: i + 1,
@@ -65,16 +88,41 @@ export class MonthlyReportComponent implements OnInit {
     return { value: year, label: String(year) };
   });
 
-  /** Ticks once per second so an open session on today (if within the selected month) keeps a live duration. */
+  /** Ticks once per second so today's bar (if it includes an open session) keeps a live duration. */
   private readonly tick = toSignal(interval(1000), { initialValue: 0 });
 
-  readonly viewModel = computed<MonthlyReportViewModel>(() => {
+  readonly viewModel = computed<MonthlyReportViewModel | null>(() => {
     this.tick();
-    return this.buildViewModel(this.monthDays(), this.selectedYear(), this.selectedMonth());
+    const rules = this.attendanceRules();
+    const cache = this.holidaysCache();
+    if (!rules || !cache || cache.year !== this.selectedYear()) {
+      return null;
+    }
+    return this.buildViewModel(
+      this.monthDays(),
+      this.selectedYear(),
+      this.selectedMonth(),
+      rules,
+      cache.holidays,
+      this.weekoffs()
+    );
   });
 
   ngOnInit(): void {
-    this.loadMonth(this.selectedYear(), this.selectedMonth());
+    forkJoin({
+      rules: this.ruleService.getRules(),
+      weekoffs: this.weekoffService.getConfig(),
+    }).subscribe({
+      next: ({ rules, weekoffs }) => {
+        this.attendanceRules.set(rules);
+        this.weekoffs.set(weekoffs);
+        this.loadMonth(this.selectedYear(), this.selectedMonth());
+      },
+      error: (err: Error) => {
+        this.isLoading.set(false);
+        this.notificationService.error(err.message);
+      },
+    });
   }
 
   onMonthSelect(month: number): void {
@@ -129,8 +177,19 @@ export class MonthlyReportComponent implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.attendanceService.getMonthForCurrentUser(year, month).subscribe({
-      next: (days) => {
+    const cache = this.holidaysCache();
+    const holidays$ =
+      cache && cache.year === year
+        ? of(cache.holidays)
+        : this.holidayService
+            .getHolidaysForYear(year)
+            .pipe(tap((holidays) => this.holidaysCache.set({ year, holidays })));
+
+    forkJoin({
+      days: this.attendanceService.getMonthForCurrentUser(year, month),
+      holidays: holidays$,
+    }).subscribe({
+      next: ({ days }) => {
         this.monthDays.set(days);
         this.isLoading.set(false);
       },
@@ -145,13 +204,45 @@ export class MonthlyReportComponent implements OnInit {
   private buildViewModel(
     days: AttendanceDay[],
     year: number,
-    month: number
+    month: number,
+    rules: AttendanceRules,
+    holidays: Holiday[],
+    weekoffs: WeekoffDay[]
   ): MonthlyReportViewModel {
     const now = this.dateTimeService.now();
     const summary = this.calculationService.getMonthlySummary(days, year, month, now);
 
     const sortedBreakdown = [...summary.dailyBreakdown].sort((a, b) =>
       a.date.localeCompare(b.date)
+    );
+
+    const todayIndexRaw = sortedBreakdown.findIndex((entry) => entry.date === this.todayDateStr);
+
+    const chartValues = sortedBreakdown.map((entry) => {
+      let minutes = entry.totalWorkingMinutes;
+      // Only today's bar gets the live in-progress top-up — every
+      // other day's value is finalized and stays exactly as
+      // getMonthlySummary() computed it.
+      if (entry.date === this.todayDateStr && entry.hasOpenSession) {
+        const todayDay = days.find((d) => d.date === this.todayDateStr);
+        const openSession = todayDay
+          ? this.calculationService.getOpenSession(todayDay.sessions)
+          : null;
+        if (openSession) {
+          minutes += this.calculationService.getCurrentSessionDurationMinutes(openSession, now);
+        }
+      }
+      return Math.round((minutes / 60) * 100) / 100;
+    });
+
+    const counts = this.calculationService.getMonthlyAttendanceCounts(
+      days,
+      year,
+      month,
+      now,
+      rules,
+      holidays,
+      weekoffs
     );
 
     return {
@@ -174,10 +265,14 @@ export class MonthlyReportComponent implements OnInit {
         hasOpenSession: entry.hasOpenSession,
       })),
       chartLabels: sortedBreakdown.map((entry) => String(Number(entry.date.split('-')[2]))),
-      chartValues: sortedBreakdown.map((entry) =>
-        Math.round((entry.totalWorkingMinutes / 60) * 100) / 100
-      ),
+      chartValues,
+      todayChartIndex: todayIndexRaw >= 0 ? todayIndexRaw : undefined,
       isEmpty: sortedBreakdown.length === 0,
+      fullDayCount: counts.fullDayCount,
+      halfDayCount: counts.halfDayCount,
+      absentCount: counts.absentCount,
+      holidayCount: counts.holidayCount,
+      weekoffCount: counts.weekoffCount,
     };
   }
 

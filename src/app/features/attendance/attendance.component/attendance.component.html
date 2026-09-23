@@ -9,7 +9,8 @@
             <div class="attendance-action">
                 <button type="button" class="btn-action" [class.btn-action--checkin]="!vm.hasOpenSession"
                     [class.btn-action--checkout]="vm.hasOpenSession" [disabled]="isProcessing()"
-                    (click)="vm.hasOpenSession ? onCheckOut() : onCheckIn()">
+                    (click)="vm.hasOpenSession ? onCheckOut() : onCheckIn()"
+                    [attr.aria-label]="vm.hasOpenSession ? 'Check out' : 'Check in'">
                     {{ isProcessing() ? 'Please wait...' : (vm.hasOpenSession ? 'CHECK OUT' : 'CHECK IN') }}
                 </button>
             </div>
@@ -22,6 +23,10 @@
                 <div class="summary-card">
                     <span class="summary-card__label">Total Working Hours</span>
                     <span class="summary-card__value">{{ vm.totalWorkingMinutesDisplay }}</span>
+                </div>
+                <div class="summary-card summary-card--inprogress" *ngIf="vm.hasOpenSession">
+                    <span class="summary-card__label">In Progress</span>
+                    <span class="summary-card__value">{{ vm.inProgressDisplay }}</span>
                 </div>
             </div>
 
@@ -50,6 +55,6 @@
     </ng-container>
 
     <ng-template #loadingState>
-        <p class="loading-state">Loading attendance...</p>
+        <p class="loading-state" role="status" aria-live="polite">Loading attendance...</p>
     </ng-template>
 </div>

@@ -21,7 +21,9 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "polyfills": ["zone.js"],
+            "polyfills": [
+              "zone.js"
+            ],
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
@@ -37,6 +39,12 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
@@ -51,19 +59,34 @@
               ],
               "outputHashing": "all"
             },
+            "staging": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.staging.ts"
+                }
+              ],
+              "optimization": true,
+              "extractLicenses": true,
+              "sourceMap": true,
+              "outputHashing": "all"
+            },
             "development": {
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "development"
         },
         "serve": {
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
               "buildTarget": "attendance-management:build:production"
+            },
+            "staging": {
+              "buildTarget": "attendance-management:build:staging"
             },
             "development": {
               "buildTarget": "attendance-management:build:development"

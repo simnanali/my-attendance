@@ -13,7 +13,6 @@ import { HOLIDAY_TYPES, Holiday } from '../../../core/models/holiday.model';
   styleUrl: './holidays.component.scss',
   templateUrl: './holidays.component.html',
 })
-
 export class HolidaysComponent implements OnInit {
   private readonly holidayService = inject(HolidayService);
   private readonly dateTimeService = inject(DateTimeService);

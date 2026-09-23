@@ -52,7 +52,38 @@
     font-variant-numeric: tabular-nums;
 }
 
+.hero-card__context {
+    margin-top: var(--space-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: var(--font-size-base);
+    font-weight: 700;
+    padding: var(--space-xs) var(--space-md);
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--color-text);
+    box-shadow: var(--shadow-sm);
+    border: 2px solid transparent;
+
+    &--holiday {
+        border-color: var(--color-warning);
+        color: #7a4a00;
+    }
+
+    &--weekoff {
+        border-color: var(--color-primary);
+        color: var(--color-primary);
+    }
+}
+
+.hero-card__context-icon {
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
 .btn-action {
+    min-height: var(--touch-target-min);
     padding: var(--space-md) var(--space-xl);
     font-size: var(--font-size-lg);
     font-weight: 700;
@@ -140,6 +171,151 @@
             color: var(--color-success);
         }
     }
+
+    &__secondary {
+        font-size: var(--font-size-sm);
+        color: var(--color-warning);
+        font-weight: 600;
+    }
+}
+
+// --- Panels (shared by Progress, Timeline, Monthly) -----------------------
+
+.panel {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+
+    h2 {
+        margin: 0 0 var(--space-md);
+        font-size: var(--font-size-lg);
+        color: var(--color-text);
+    }
+}
+
+// --- Today's Progress ------------------------------------------------------
+
+.progress-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-sm);
+
+    h2 {
+        margin: 0;
+    }
+}
+
+.status-badge {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    padding: 4px var(--space-sm);
+    border-radius: var(--radius-sm);
+    color: #fff;
+
+    &--full {
+        background-color: var(--color-success);
+    }
+
+    &--half {
+        background-color: var(--color-warning);
+        color: #1a1a1a;
+    }
+
+    &--absent {
+        background-color: var(--color-danger);
+    }
+
+    &--inprogress {
+        background-color: var(--color-primary);
+    }
+}
+
+.progress-panel__numbers {
+    margin: 0 0 var(--space-md);
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+}
+
+.progress-panel__of {
+    color: var(--color-text-muted);
+    font-weight: 400;
+}
+
+.progress-panel__inprogress-note {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-warning);
+}
+
+.progress-track-wrapper {
+    padding-bottom: var(--space-lg);
+}
+
+.progress-track {
+    position: relative;
+    height: 16px;
+    border-radius: 999px;
+    background-color: var(--color-background);
+    border: 1px solid var(--color-border);
+    overflow: visible;
+}
+
+.progress-track__fills {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.progress-track__fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-success));
+    transition: width 0.3s ease;
+    flex: 0 0 auto;
+
+    &--inprogress {
+        background: repeating-linear-gradient(45deg,
+                var(--color-warning),
+                var(--color-warning) 6px,
+                rgba(255, 255, 255, 0.35) 6px,
+                rgba(255, 255, 255, 0.35) 12px);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+}
+
+.progress-track__marker {
+    position: absolute;
+    top: -2px;
+    bottom: -2px;
+    width: 2px;
+    background-color: var(--color-text-muted);
+    transform: translateX(-1px);
+}
+
+.progress-track__marker-label {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 4px;
+    font-size: 10px;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+}
+
+.progress-panel__remaining {
+    margin: var(--space-sm) 0 0;
+    font-size: var(--font-size-base);
+    color: var(--color-text-muted);
+    font-weight: 600;
 }
 
 // --- Two-column layout -----------------------------------------------------
@@ -152,19 +328,6 @@
 
     @media (max-width: 900px) {
         grid-template-columns: 1fr;
-    }
-}
-
-.panel {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: var(--space-lg);
-
-    h2 {
-        margin: 0 0 var(--space-md);
-        font-size: var(--font-size-lg);
-        color: var(--color-text);
     }
 }
 

@@ -17,7 +17,6 @@ interface NavItem {
  */
 @Component({
   selector: 'app-sidebar',
-  standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
@@ -32,10 +31,13 @@ export class SidebarComponent {
 
   readonly navItems: NavItem[] = [
     { label: 'Dashboard', icon: '🏠', route: '/dashboard' },
-    { label: 'My Attendance', icon: '🕐', route: '/attendance' },
+    { label: 'Attendance', icon: '🕐', route: '/attendance' },
     { label: 'Daily Report', icon: '📅', route: '/daily-report' },
     { label: 'Monthly Report', icon: '📊', route: '/monthly-report' },
-    { label: 'My Profile', icon: '👤', route: '/profile' },
+    { label: 'Holiday', icon: '🎉', route: '/holidays' },
+    { label: 'Weekoff', icon: '🌴', route: '/weekoff' },
+    { label: 'Attendance Rules', icon: '⚙️', route: '/attendance-rules' },
+    { label: 'Profile', icon: '👤', route: '/profile' },
   ];
 
   isRouteActive(route: string): boolean {

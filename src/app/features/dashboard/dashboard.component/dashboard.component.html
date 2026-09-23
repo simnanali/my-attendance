@@ -1,5 +1,7 @@
 <div class="dashboard-page">
-    <p class="loading-state" *ngIf="isLoading()">Loading dashboard...</p>
+    <p class="loading-state" role="status" aria-live="polite" *ngIf="isLoading()">
+        Loading dashboard...
+    </p>
 
     <ng-container *ngIf="!isLoading()">
         <ng-container *ngIf="viewModel() as vm">
@@ -8,6 +10,14 @@
                 <div class="hero-card__datetime">
                     <p class="hero-card__date">{{ vm.currentDateDisplay }}</p>
                     <p class="hero-card__time">{{ vm.currentTimeDisplay }}</p>
+                    <div class="hero-card__context" *ngIf="vm.dayContextLabel"
+                        [class.hero-card__context--holiday]="vm.dayContextType === 'holiday'"
+                        [class.hero-card__context--weekoff]="vm.dayContextType === 'weekoff'">
+                        <span class="hero-card__context-icon" aria-hidden="true">
+                            {{ vm.dayContextType === 'holiday' ? '🎉' : '🌴' }}
+                        </span>
+                        <span>{{ vm.dayContextLabel }}</span>
+                    </div>
                 </div>
 
                 <button type="button" class="btn-action" [class.btn-action--checkin]="!vm.hasOpenSession"
@@ -22,6 +32,12 @@
                 <div class="kpi-card">
                     <span class="kpi-card__label">Today's Working Hours</span>
                     <span class="kpi-card__value">{{ vm.todayWorkingHoursDisplay }}</span>
+                    <span class="kpi-card__secondary" *ngIf="vm.todayInProgressDisplay">
+                        + {{ vm.todayInProgressDisplay }} in progress
+                    </span>
+                    <span class="kpi-card__secondary" *ngIf="vm.todayInProgressDisplay">
+                        = {{ vm._calculatedCompletedInprogressDisplay}}
+                    </span>
                 </div>
                 <div class="kpi-card">
                     <span class="kpi-card__label">Today's Sessions</span>
@@ -38,6 +54,51 @@
                         {{ vm.currentStatusDisplay }}
                     </span>
                 </div>
+            </section>
+
+            <!-- Today's Progress (Phase 8B) -->
+            <section class="panel progress-panel">
+                <div class="progress-panel__header">
+                    <h2>Today's Progress</h2>
+                    <span class="status-badge" [class.status-badge--inprogress]="vm.hasOpenSession"
+                        [class.status-badge--full]="!vm.hasOpenSession && vm.attendanceStatus === 'FULL_DAY'"
+                        [class.status-badge--half]="!vm.hasOpenSession && vm.attendanceStatus === 'HALF_DAY'"
+                        [class.status-badge--absent]="!vm.hasOpenSession && vm.attendanceStatus === 'ABSENT'">
+                        {{ vm.hasOpenSession
+                        ? 'In Progress'
+                        : (vm.attendanceStatus === 'FULL_DAY' ? 'Full Day' : vm.attendanceStatus === 'HALF_DAY' ?
+                        'Half Day' : 'Absent') }}
+                    </span>
+                </div>
+
+                <p class="progress-panel__numbers">
+                    {{ vm.progressActualDisplay }} <span class="progress-panel__of">/</span> {{
+                    vm.progressTargetDisplay
+                    }}
+                    <span class="progress-panel__inprogress-note" *ngIf="vm.todayInProgressDisplay">
+                        (+{{ vm.todayInProgressDisplay }} in progress)
+                    </span>
+                </p>
+
+                <div class="progress-track-wrapper">
+                    <div class="progress-track" role="progressbar" [attr.aria-valuenow]="vm.progressPercentage"
+                        aria-valuemin="0" aria-valuemax="100"
+                        [attr.aria-label]="'Today\'s progress: ' + vm.progressPercentage + ' percent of target'">
+                        <div class="progress-track__fills">
+                            <div class="progress-track__fill" [style.width.%]="vm.progressCompletedPercent"></div>
+                            <div class="progress-track__fill progress-track__fill--inprogress"
+                                [style.width.%]="vm.progressInProgressPercent"></div>
+                        </div>
+                        <div class="progress-track__marker" [style.left.%]="vm.halfDayMarkerPercent">
+                            <span class="progress-track__marker-label">Half Day</span>
+                        </div>
+                        <div class="progress-track__marker" [style.left.%]="vm.fullDayMarkerPercent">
+                            <span class="progress-track__marker-label">Full Day</span>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="progress-panel__remaining">{{ vm.progressRemainingDisplay }}</p>
             </section>
 
             <div class="dashboard-columns">

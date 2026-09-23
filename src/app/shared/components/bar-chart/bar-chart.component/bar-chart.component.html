@@ -1,13 +1,23 @@
 <div class="bar-chart" *ngIf="labels.length > 0">
     <svg class="bar-chart__svg" [attr.viewBox]="'0 0 ' + chartWidth + ' ' + totalHeight" preserveAspectRatio="none"
         role="img" [attr.aria-label]="'Bar chart with ' + labels.length + ' data points'">
+        <defs>
+            <pattern id="barChartTodayStripe" patternUnits="userSpaceOnUse" width="8" height="8"
+                patternTransform="rotate(45)">
+                <rect width="8" height="8" fill="var(--color-primary)"></rect>
+                <rect width="4" height="8" fill="var(--color-warning)"></rect>
+            </pattern>
+        </defs>
+
         <line x1="0" [attr.y1]="chartHeight" [attr.x2]="chartWidth" [attr.y2]="chartHeight"
             class="bar-chart__baseline" />
 
         <ng-container *ngFor="let value of values; let i = index">
             <rect [attr.x]="barX(i)" [attr.y]="barY(value)" [attr.width]="barWidth" [attr.height]="barHeight(value)"
-                class="bar-chart__bar" rx="3">
-                <title>{{ labels[i] }}: {{ formattedValue(value) }}</title>
+                class="bar-chart__bar" [class.bar-chart__bar--today]="isHighlighted(i)"
+                [attr.fill]="isHighlighted(i) ? 'url(#barChartTodayStripe)' : null" rx="3">
+                <title>{{ labels[i] }}: {{ formattedValue(value) }}{{ isHighlighted(i) ? ' (today, still counting)' : ''
+                    }}</title>
             </rect>
 
             <text [attr.x]="labelX(i)" [attr.y]="chartHeight + 18" class="bar-chart__label" text-anchor="middle">

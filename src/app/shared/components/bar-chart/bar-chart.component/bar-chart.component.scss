@@ -16,6 +16,11 @@
     &:hover {
         opacity: 0.8;
     }
+
+    &--today {
+        stroke: var(--color-warning);
+        stroke-width: 1.5;
+    }
 }
 
 .bar-chart__baseline {

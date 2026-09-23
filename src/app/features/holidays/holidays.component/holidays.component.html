@@ -63,16 +63,20 @@
     <section class="holiday-filters" *ngIf="!isFormOpen()">
         <div class="filter-field">
             <label for="year-filter">Year</label>
-            <select id="year-filter" [value]="selectedYear()" (change)="onYearChange(+$any($event.target).value)">
-                <option *ngFor="let year of yearOptions" [value]="year">{{ year }}</option>
+            <select id="year-filter" (change)="onYearChange(+$any($event.target).value)">
+                <option *ngFor="let year of yearOptions" [value]="year" [selected]="year === selectedYear()">
+                    {{ year }}
+                </option>
             </select>
         </div>
 
         <div class="filter-field">
             <label for="type-filter">Type</label>
-            <select id="type-filter" [value]="selectedType()" (change)="onTypeChange($any($event.target).value)">
-                <option value="All">All</option>
-                <option *ngFor="let type of holidayTypes" [value]="type">{{ type }}</option>
+            <select id="type-filter" (change)="onTypeChange($any($event.target).value)">
+                <option value="All" [selected]="selectedType() === 'All'">All</option>
+                <option *ngFor="let type of holidayTypes" [value]="type" [selected]="type === selectedType()">
+                    {{ type }}
+                </option>
             </select>
         </div>
 

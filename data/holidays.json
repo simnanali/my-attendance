@@ -34,6 +34,13 @@
       "day": "Friday",
       "name": "Christmas",
       "type": "Festival"
+    },
+    {
+      "id": "HOL-000007",
+      "date": "2026-09-24",
+      "day": "Thursday",
+      "name": "Test Holiday",
+      "type": "Company"
     }
   ]
 }

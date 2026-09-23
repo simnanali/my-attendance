@@ -24,6 +24,7 @@ interface AttendanceViewModel {
   totalWorkingMinutesDisplay: string;
   totalSessions: number;
   sessions: SessionViewModel[];
+  inProgressDisplay: string;
 }
 
 @Component({
@@ -103,6 +104,14 @@ export class AttendanceComponent implements OnInit, OnDestroy {
     const openSession = this.calculationService.getOpenSession(sessions);
     const totalWorkingMinutes = this.calculationService.calculateTotalWorkingMinutes(sessions);
 
+    // In-progress minutes are the currently open session's own live
+    // duration — kept entirely separate from totalWorkingMinutes above,
+    // which only ever sums COMPLETED sessions. Never mixed into the
+    // finalized total; only used for the extra display card.
+    const inProgressMinutes = openSession
+      ? this.calculationService.getCurrentSessionDurationMinutes(openSession, now)
+      : 0;
+
     return {
       currentDateDisplay: this.dateTimeService.formatDateDisplay(
         this.dateTimeService.getCurrentDateString()
@@ -113,6 +122,7 @@ export class AttendanceComponent implements OnInit, OnDestroy {
         this.calculationService.formatMinutesAsHoursAndMinutes(totalWorkingMinutes),
       totalSessions: sessions.length,
       sessions: sessions.map((session) => this.buildSessionViewModel(session, now)),
+      inProgressDisplay: this.calculationService.formatMinutesAsHoursAndMinutes(inProgressMinutes),
     };
   }
 

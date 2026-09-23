@@ -7,16 +7,16 @@
                 &larr; Prev
             </button>
 
-            <select class="select-input" [value]="selectedMonth()" (change)="onMonthSelect(+$any($event.target).value)"
-                aria-label="Select month">
-                <option *ngFor="let option of monthOptions" [value]="option.value">
+            <select class="select-input" (change)="onMonthSelect(+$any($event.target).value)" aria-label="Select month">
+                <option *ngFor="let option of monthOptions" [value]="option.value"
+                    [selected]="option.value === selectedMonth()">
                     {{ option.label }}
                 </option>
             </select>
 
-            <select class="select-input" [value]="selectedYear()" (change)="onYearSelect(+$any($event.target).value)"
-                aria-label="Select year">
-                <option *ngFor="let option of yearOptions" [value]="option.value">
+            <select class="select-input" (change)="onYearSelect(+$any($event.target).value)" aria-label="Select year">
+                <option *ngFor="let option of yearOptions" [value]="option.value"
+                    [selected]="option.value === selectedYear()">
                     {{ option.label }}
                 </option>
             </select>
@@ -28,40 +28,75 @@
         </div>
     </header>
 
-    <p class="loading-state" *ngIf="isLoading()">Loading monthly report...</p>
+    <p class="loading-state" role="status" aria-live="polite" *ngIf="isLoading()">
+        Loading monthly report...
+    </p>
 
     <ng-container *ngIf="!isLoading()">
-        <p class="error-state" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+        <p class="error-state" role="alert" *ngIf="errorMessage()">{{ errorMessage() }}</p>
 
-        <ng-container *ngIf="!errorMessage()">
+        <ng-container *ngIf="!errorMessage() && viewModel() as vm">
             <div class="summary-grid">
                 <div class="summary-card">
                     <span class="summary-card__label">Total Working Days</span>
-                    <span class="summary-card__value">{{ viewModel().totalWorkingDays }}</span>
+                    <span class="summary-card__value">{{ vm.totalWorkingDays }}</span>
                 </div>
                 <div class="summary-card">
                     <span class="summary-card__label">Total Sessions</span>
-                    <span class="summary-card__value">{{ viewModel().totalSessions }}</span>
+                    <span class="summary-card__value">{{ vm.totalSessions }}</span>
                 </div>
                 <div class="summary-card">
                     <span class="summary-card__label">Total Working Hours</span>
-                    <span class="summary-card__value">{{ viewModel().totalWorkingHoursDisplay }}</span>
+                    <span class="summary-card__value">{{ vm.totalWorkingHoursDisplay }}</span>
                 </div>
                 <div class="summary-card">
                     <span class="summary-card__label">Average Working Hours / Day</span>
-                    <span class="summary-card__value">{{ viewModel().averageWorkingHoursPerDayDisplay }}</span>
+                    <span class="summary-card__value">{{ vm.averageWorkingHoursPerDayDisplay }}</span>
                 </div>
             </div>
 
-            <p class="empty-state" *ngIf="viewModel().isEmpty">
+            <section class="breakdown-section">
+                <h2>Attendance Breakdown</h2>
+                <p class="breakdown-section__hint">
+                    Every calendar day this month up to today — Holidays and Weekoffs are excluded from Full Day /
+                    Half Day / Absent.
+                </p>
+                <div class="breakdown-grid">
+                    <div class="breakdown-chip breakdown-chip--full">
+                        <span class="breakdown-chip__value">{{ vm.fullDayCount }}</span>
+                        <span class="breakdown-chip__label">Full Day</span>
+                    </div>
+                    <div class="breakdown-chip breakdown-chip--half">
+                        <span class="breakdown-chip__value">{{ vm.halfDayCount }}</span>
+                        <span class="breakdown-chip__label">Half Day</span>
+                    </div>
+                    <div class="breakdown-chip breakdown-chip--absent">
+                        <span class="breakdown-chip__value">{{ vm.absentCount }}</span>
+                        <span class="breakdown-chip__label">Absent</span>
+                    </div>
+                    <div class="breakdown-chip breakdown-chip--holiday">
+                        <span class="breakdown-chip__value">{{ vm.holidayCount }}</span>
+                        <span class="breakdown-chip__label">Holidays</span>
+                    </div>
+                    <div class="breakdown-chip breakdown-chip--weekoff">
+                        <span class="breakdown-chip__value">{{ vm.weekoffCount }}</span>
+                        <span class="breakdown-chip__label">Weekoffs</span>
+                    </div>
+                </div>
+            </section>
+
+            <p class="empty-state" *ngIf="vm.isEmpty">
                 No attendance records found for this month.
             </p>
 
-            <ng-container *ngIf="!viewModel().isEmpty">
+            <ng-container *ngIf="!vm.isEmpty">
                 <section class="chart-section">
                     <h2>Working Hours by Day</h2>
-                    <app-bar-chart [labels]="viewModel().chartLabels" [values]="viewModel().chartValues"
-                        valueSuffix="h"></app-bar-chart>
+                    <app-bar-chart [labels]="vm.chartLabels" [values]="vm.chartValues"
+                        [highlightIndex]="vm.todayChartIndex" valueSuffix="h"></app-bar-chart>
+                    <p class="chart-note" *ngIf="vm.todayChartIndex !== undefined">
+                        Today's striped bar includes live in-progress time and updates automatically.
+                    </p>
                 </section>
 
                 <section class="rows-section">
@@ -75,7 +110,7 @@
                             <span>Sessions</span>
                             <span>Working Hours</span>
                         </div>
-                        <div class="rows-table__row" *ngFor="let row of viewModel().rows">
+                        <div class="rows-table__row" *ngFor="let row of vm.rows">
                             <span data-label="Date">{{ row.dateDisplay }}</span>
                             <span data-label="First In">{{ row.firstInDisplay }}</span>
                             <span data-label="Last Out">{{ row.lastOutDisplay }}</span>

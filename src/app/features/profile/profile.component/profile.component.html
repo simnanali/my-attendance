@@ -1,25 +1,31 @@
 <div class="profile-page">
-    <div class="profile-card" *ngIf="currentUser() as user">
-        <div class="profile-card__avatar">👤</div>
-        <h1 class="profile-card__name">{{ user.fullName }}</h1>
+    <ng-container *ngIf="currentUser() as user; else loadingState">
+        <div class="profile-card">
+            <div class="profile-card__avatar" aria-hidden="true">👤</div>
+            <h1 class="profile-card__name">{{ user.fullName }}</h1>
 
-        <dl class="profile-fields">
-            <div class="profile-field">
-                <dt>Full Name</dt>
-                <dd>{{ user.fullName }}</dd>
-            </div>
-            <div class="profile-field">
-                <dt>Email</dt>
-                <dd>{{ user.email }}</dd>
-            </div>
-            <div class="profile-field">
-                <dt>Username</dt>
-                <dd>{{ user.username }}</dd>
-            </div>
-            <div class="profile-field">
-                <dt>Member Since</dt>
-                <dd>{{ memberSinceDisplay(user.createdAt) }}</dd>
-            </div>
-        </dl>
-    </div>
+            <dl class="profile-fields">
+                <div class="profile-field">
+                    <dt>Full Name</dt>
+                    <dd>{{ user.fullName }}</dd>
+                </div>
+                <div class="profile-field">
+                    <dt>Email</dt>
+                    <dd>{{ user.email }}</dd>
+                </div>
+                <div class="profile-field">
+                    <dt>Username</dt>
+                    <dd>{{ user.username }}</dd>
+                </div>
+                <div class="profile-field">
+                    <dt>Member Since</dt>
+                    <dd>{{ memberSinceDisplay(user.createdAt) }}</dd>
+                </div>
+            </dl>
+        </div>
+    </ng-container>
+
+    <ng-template #loadingState>
+        <p class="loading-state" role="status" aria-live="polite">Loading profile...</p>
+    </ng-template>
 </div>

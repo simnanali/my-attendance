@@ -10,19 +10,27 @@ const attendanceRulesRouter = require('./routes/attendance-rules.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const ALLOWED_ORIGIN = 'http://localhost:4200' || 'https://my-attendance-u7hz.onrender.com';
+const ALLOWED_ORIGINS = ['http://localhost:4200', 'https://my-attendance-u7hz.onrender.com'];
 
 app.use(express.json());
 
-// Manual CORS handling for local development — avoids adding the `cors`
-// npm package for what is otherwise a three-line requirement.
+// Manual CORS handling with dynamic origin checking
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    const origin = req.headers.origin;
+
+    // Check if the incoming request origin is in our allowed list
+    if (ALLOWED_ORIGINS.includes(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+    }
+
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+    // Handle browser preflight (OPTIONS) check
     if (req.method === 'OPTIONS') {
         return res.sendStatus(204);
     }
+
     next();
 });
 

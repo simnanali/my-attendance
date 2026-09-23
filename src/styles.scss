@@ -15,6 +15,27 @@ body {
   font-size: var(--font-size-base);
 }
 
+// Tells the browser which palette to use for NATIVE form controls it
+// renders itself (date-picker icon/popup, select dropdown arrow,
+// number-input spinners, checkbox/radio default styling) — these are
+// not stylable via ordinary CSS, so without this they stay light-mode
+// styled even when the rest of the page is dark (Section 20: "correct
+// input styling" in dark mode).
+:root {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+// Consistent, theme-aware placeholder contrast — browser defaults can
+// read as too-light in dark mode.
+::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
 // Subtle theme transition when toggling light/dark, respecting reduced-motion.
 body,
 .app-header,

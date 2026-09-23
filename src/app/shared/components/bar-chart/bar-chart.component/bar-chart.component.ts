@@ -12,19 +12,12 @@ const BAR_WIDTH_RATIO = 0.6;
  * app's existing CSS variable tokens (var(--color-primary), etc.), so
  * dark mode is inherited automatically with zero extra theming code.
  *
- * Uses a FIXED logical viewBox width (CHART_WIDTH) combined with
- * preserveAspectRatio="none" and an explicit CSS pixel height on the
- * <svg> element. This deliberately decouples horizontal scaling (bars
- * always spread across whatever width the container renders at) from
- * vertical scaling (chart height never changes). The previous
- * "xMidYMid meet" + height:auto approach derived height purely from
- * the viewBox's own aspect ratio, which blew up to an enormous height
- * whenever there were only 1-2 data points, since a narrow viewBox
- * stretched to a wide container preserves aspect ratio by growing
- * height dramatically.
- *
- * Approved as "Option A" for Phase 6 to avoid adding a charting
- * dependency (Chart.js/ngx-charts) for a single bar-chart use case.
+ * highlightIndex (optional): renders that one bar with a distinct
+ * diagonal-stripe pattern instead of the flat fill, e.g. to mark
+ * "today" on Monthly Report as still live/accruing — matching the
+ * same striped visual language used on Dashboard's progress bar.
+ * Defaults to undefined, so existing callers (Dashboard) that don't
+ * pass it are completely unaffected.
  */
 @Component({
   imports: [CommonModule],
@@ -37,6 +30,7 @@ export class BarChartComponent {
   @Input() values: number[] = [];
   @Input() valueSuffix = 'h';
   @Input() valueDecimals = 1;
+  @Input() highlightIndex?: number;
 
   readonly chartWidth = CHART_WIDTH;
   readonly chartHeight = CHART_HEIGHT;
@@ -72,5 +66,9 @@ export class BarChartComponent {
 
   formattedValue(value: number): string {
     return `${value.toFixed(this.valueDecimals)}${this.valueSuffix}`;
+  }
+
+  isHighlighted(index: number): boolean {
+    return index === this.highlightIndex;
   }
 }

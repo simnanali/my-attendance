@@ -17,41 +17,60 @@
         </div>
     </header>
 
-    <p class="loading-state" *ngIf="isLoading()">Loading attendance...</p>
+    <p class="loading-state" role="status" aria-live="polite" *ngIf="isLoading()">
+        Loading attendance...
+    </p>
 
     <ng-container *ngIf="!isLoading()">
-        <p class="error-state" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+        <p class="error-state" role="alert" *ngIf="errorMessage()">{{ errorMessage() }}</p>
 
-        <ng-container *ngIf="!errorMessage()">
-            <p class="selected-date">{{ viewModel().dateDisplay }}</p>
+        <ng-container *ngIf="!errorMessage() && viewModel() as vm">
+            <div class="selected-date-row">
+                <p class="selected-date">{{ vm.dateDisplay }}</p>
+
+                <span class="day-type-badge" [class.day-type-badge--holiday]="vm.dayType === 'holiday'"
+                    [class.day-type-badge--weekoff]="vm.dayType === 'weekoff'"
+                    [class.day-type-badge--working]="vm.dayType === 'working'">
+                    {{ vm.dayTypeLabel }}
+                </span>
+
+                <span class="status-badge" *ngIf="vm.attendanceStatus as status"
+                    [class.status-badge--inprogress]="vm.showInProgress"
+                    [class.status-badge--full]="!vm.showInProgress && status === 'FULL_DAY'"
+                    [class.status-badge--half]="!vm.showInProgress && status === 'HALF_DAY'"
+                    [class.status-badge--absent]="!vm.showInProgress && status === 'ABSENT'">
+                    {{ vm.showInProgress ? 'In Progress' : (status === 'FULL_DAY' ? 'Full Day' : status ===
+                    'HALF_DAY' ? 'Half Day' : 'Absent') }}
+                </span>
+            </div>
 
             <div class="summary-grid">
                 <div class="summary-card">
                     <span class="summary-card__label">First Check-In</span>
-                    <span class="summary-card__value">{{ viewModel().firstCheckInDisplay ?? '—' }}</span>
+                    <span class="summary-card__value">{{ vm.firstCheckInDisplay ?? '—' }}</span>
                 </div>
                 <div class="summary-card">
                     <span class="summary-card__label">Last Check-Out</span>
-                    <span class="summary-card__value">{{ viewModel().lastCheckOutDisplay ?? '—' }}</span>
+                    <span class="summary-card__value">{{ vm.lastCheckOutDisplay ?? '—' }}</span>
                 </div>
                 <div class="summary-card">
                     <span class="summary-card__label">Total Sessions</span>
-                    <span class="summary-card__value">{{ viewModel().totalSessions }}</span>
+                    <span class="summary-card__value">{{ vm.totalSessions }}</span>
                 </div>
                 <div class="summary-card">
                     <span class="summary-card__label">Total Working Hours</span>
-                    <span class="summary-card__value">{{ viewModel().totalWorkingHoursDisplay }}</span>
+                    <span class="summary-card__value">{{ vm.totalWorkingHoursDisplay }}</span>
                 </div>
             </div>
 
             <section class="sessions-section">
                 <h2>Sessions</h2>
 
-                <p class="empty-state" *ngIf="viewModel().isEmpty">
+                <p class="empty-state" *ngIf="vm.isEmpty">
                     No attendance recorded for this day.
                 </p>
 
-                <div class="sessions-table" *ngIf="!viewModel().isEmpty">
+                <div class="sessions-table" *ngIf="!vm.isEmpty">
                     <div class="sessions-table__header">
                         <span>Session</span>
                         <span>Check-In</span>
@@ -59,14 +78,14 @@
                         <span>Duration</span>
                         <span>Status</span>
                     </div>
-                    <div class="sessions-table__row" *ngFor="let session of viewModel().sessions">
+                    <div class="sessions-table__row" *ngFor="let session of vm.sessions">
                         <span data-label="Session">Session {{ session.sessionNumber }}</span>
                         <span data-label="Check-In">{{ session.checkInDisplay }}</span>
                         <span data-label="Check-Out">{{ session.checkOutDisplay ?? '—' }}</span>
                         <span data-label="Duration">{{ session.durationDisplay }}</span>
-                        <span data-label="Status" class="status-badge"
-                            [class.status-badge--completed]="session.status === 'Completed'"
-                            [class.status-badge--inprogress]="session.status === 'In Progress'">
+                        <span data-label="Status" class="session-status-badge"
+                            [class.session-status-badge--completed]="session.status === 'Completed'"
+                            [class.session-status-badge--inprogress]="session.status === 'In Progress'">
                             {{ session.status }}
                         </span>
                     </div>

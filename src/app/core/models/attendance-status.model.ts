@@ -1,5 +1,3 @@
-export interface AttendanceStatusModel { }
-
 export type AttendanceStatus = 'FULL_DAY' | 'HALF_DAY' | 'ABSENT';
 
 /** Result of classifying a day's total working minutes against configured AttendanceRules. */
@@ -12,16 +10,32 @@ export interface AttendanceStatusResult {
 
 /**
  * Result of computing progress toward the standard working-minutes
- * target. Not explicitly named in the source spec, but needed to
- * return "capped percentage + remaining-or-target-reached" as one
- * cohesive shape rather than three loose return values — flagged as a
- * new shape in Step 1's review.
+ * target.
  */
 export interface ProgressResult {
-    /** 0-100, never exceeds 100 even if totalWorkingMinutes > standardWorkingMinutes (Section 22). */
+    /** 0-100, never exceeds 100 even if totalWorkingMinutes > standardWorkingMinutes. */
     percentage: number;
     /** Minutes remaining until standardWorkingMinutes is reached; 0 once reached/exceeded. */
     remainingMinutes: number;
-    /** True once totalWorkingMinutes >= standardWorkingMinutes (Section 23 — show "Target Completed" instead of a negative remaining value). */
+    /** True once totalWorkingMinutes >= standardWorkingMinutes. */
     targetReached: boolean;
+}
+
+/**
+ * Month-wide Full Day / Half Day / Absent counts, plus Holiday/Weekoff
+ * counts, produced by getMonthlyAttendanceCounts(). Every calendar day
+ * up to today is classified into exactly one bucket — Holiday and
+ * Weekoff days are excluded from Full/Half/Absent entirely (they are
+ * never counted as an attendance absence). Future days are never
+ * counted at all. workingDaysConsidered = fullDayCount + halfDayCount
+ * + absentCount, so the five counts together account for every
+ * calendar day considered.
+ */
+export interface MonthlyAttendanceCounts {
+    fullDayCount: number;
+    halfDayCount: number;
+    absentCount: number;
+    holidayCount: number;
+    weekoffCount: number;
+    workingDaysConsidered: number;
 }
